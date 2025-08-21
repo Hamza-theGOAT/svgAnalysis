@@ -29,13 +29,25 @@ def analyzeSVG(svgFile):
     # 2. All element types in the SVG
     allElms = soup.find_all()
     elmCounts = {}
-    for elem in allElms:
-        elmCounts[elem.name] = elmCounts.get(elem.name, 0) + 1
+    for elm in allElms:
+        elmCounts[elm.name] = elmCounts.get(elm.name, 0) + 1
 
     print(f"\n📊 ELEMENT SUMMARY:")
     print("-" * 40)
     for elmType, count in sorted(elmCounts.items()):
         print(f"  {elmType}: {count}")
+
+    # 3. Text elements analysis
+    txtElms = soup.find_all(['text', 'tspan'])
+    if txtElms:
+        print(f"\n📝 TEXT ELEMENTS ({len(txtElms)} found):")
+        print("-" * 40)
+        for i, elm in enumerate(txtElms):
+            txtContent = elm.get_text(strip=True)
+            if txtContent:  # Only show elements with actual text
+                print(f"  [{i}] <{elm.name}>")
+                print(f"      Text: '{txtContent}'")
+                print(f"      Attributes: {dict(elm.attrs)}\n")
 
 
 if __name__ == '__main__':
