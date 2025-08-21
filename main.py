@@ -19,12 +19,23 @@ def analyzeSVG(svgFile):
     print("="*80)
 
     # 1. Root SVG element info
-    svgElm = soup.find('svg')
-    if svgElm:
+    svgElms = soup.find('svg')
+    if svgElms:
         print("\n🎨 ROOT SVG ELEMENT:")
         print("-" * 40)
-        for attr, value in svgElm.attrs.items():
+        for attr, value in svgElms.attrs.items():
             print(f"  {attr}: {value}")
+
+    # 2. All element types in the SVG
+    allElms = soup.find_all()
+    elmCounts = {}
+    for elem in allElms:
+        elmCounts[elem.name] = elmCounts.get(elem.name, 0) + 1
+
+    print(f"\n📊 ELEMENT SUMMARY:")
+    print("-" * 40)
+    for elmType, count in sorted(elmCounts.items()):
+        print(f"  {elmType}: {count}")
 
 
 if __name__ == '__main__':
