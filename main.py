@@ -114,6 +114,59 @@ def analyzeSVG(svgFile):
                 print(f"      [{j}] <{child.name}> {dict(child.attrs)}\n")
 
 
+def svgHierarchy(svgFile, maxDepth=3):
+    """
+    Print the hierarchical structure of the SVG.
+
+    Args:
+        svgFile (str): Path to the SVG file
+        maxDepth (int): Maximum depth to traverse
+    """
+    with open(svgFile, 'r', encoding='utf-8') as f:
+        content = f.read()
+
+    soup = BeautifulSoup(content, 'xml')
+
+    print("\n" + "="*80)
+    print("🌳 SVG HIERARCHY TREE")
+    print("="*80)
+
+    def elmStructure(elm, depth=0, maxDepth=maxDepth):
+        if depth > maxDepth:
+            return
+
+        indent = "  " * depth
+
+        # Element info
+        tagInfo = f"<{elm.name}>"
+
+        # Add key attributes
+        keyAttrs = []
+        if elm.get('id'):
+            keyAttrs.append(f"id='{elm.get('id')}'")
+        if elm.get('class'):
+            keyAttrs.append(f"class='{elm.get('class')}'")
+        if elm.name in ['text', 'tspan'] and elm.get_text(strip=True):
+            text = elm.get_text(strip=True)[
+                :30] + "..." if len(elm.get_text(strip=True)) > 30 else elm.get_text(strip=True)
+            keyAttrs.append(f"text='{text}'")
+
+        if keyAttrs:
+            tagInfo += f" [{', '.join(keyAttrs)}]"
+
+        print(f"{indent}{tagInfo}")
+
+        # Process children
+        children = elm.find_all(recursive=False)
+        for child in children:
+            elmStructure(child, depth + 1, maxDepth)
+
+    svgRoot = soup.find('svg')
+    if svgRoot:
+        elmStructure(svgRoot)
+
+
 if __name__ == '__main__':
     svgFile = 'little_tower.svg'
     analyzeSVG(svgFile)
+    svgHierarchy(svgFile)
