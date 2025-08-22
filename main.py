@@ -8,6 +8,10 @@ def analyzeSVG(svgFile):
     Args:
         svgFile (str): Path to the SVG file
     """
+    shapesList = ['rect', 'circle', 'ellipse',
+                  'line', 'polyline', 'polygon', 'path']
+    keyAttrs = ['x', 'y', 'width', 'height', 'cx',
+                'cy', 'r', 'rx', 'ry', 'd', 'points']
 
     with open(svgFile, 'r', encoding='utf-8') as f:
         content = f.read()
@@ -48,6 +52,45 @@ def analyzeSVG(svgFile):
                 print(f"  [{i}] <{elm.name}>")
                 print(f"      Text: '{txtContent}'")
                 print(f"      Attributes: {dict(elm.attrs)}\n")
+
+    # 4. Groups and layers
+    groups = soup.find_all('g')
+    if groups:
+        print(f"\n🗂️  GROUPS/LAYERS ({len(groups)} found):")
+        print("-" * 40)
+        for i, group in enumerate(groups):
+            print(f"  [{i}] <g>")
+            attrs = dict(group.attrs)
+            if attrs:
+                print(f"      Attributes: {attrs}")
+
+            # Count children
+            children = group.find_all(recursive=False)
+            childTypes = {}
+            for child in children:
+                childTypes[child.name] = childTypes.get(child.name, 0) + 1
+
+            if childTypes:
+                print(f"      Children: {dict(childTypes)}\n")
+
+    # 5. Shape elements
+    shapes = soup.find_all(shapesList)
+    if shapes:
+        print(f"\n🔷 SHAPE ELEMENTS ({len(shapes)} found):")
+        print("-" * 40)
+        for i, shape in enumerate(shapes):
+            print(f"  [{i}] <{shape.name}>")
+            attrs = dict(shape.attrs)
+            # Show key positioning/sizing attributes
+            relevantAttrs = {k: v for k, v in attrs.items() if k in keyAttrs}
+            if relevantAttrs:
+                print(f"      Geometry: {relevantAttrs}")
+
+            # Show styling
+            style_attrs = {k: v for k, v in attrs.items(
+            ) if k in ['fill', 'stroke', 'style', 'class']}
+            if style_attrs:
+                print(f"      Style: {style_attrs}\n")
 
 
 if __name__ == '__main__':
