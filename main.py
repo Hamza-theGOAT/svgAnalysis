@@ -92,6 +92,27 @@ def analyzeSVG(svgFile):
             if style_attrs:
                 print(f"      Style: {style_attrs}\n")
 
+    # 6. Images
+    images = soup.find_all('image')
+    if images:
+        print(f"\n🖼️  IMAGES ({len(images)} found):")
+        print("-" * 40)
+        for i, img in enumerate(images):
+            print(f"  [{i}] <image>")
+            attrs = dict(img.attrs)
+            print(f"      Attributes: {attrs}\n")
+
+    # 7. Definitions (defs) - gradients, patterns, etc.
+    defs = soup.find_all('defs')
+    if defs:
+        print(f"\n🔧 DEFINITIONS ({len(defs)} found):")
+        print("-" * 40)
+        for i, defElm in enumerate(defs):
+            print(f"  [{i}] <defs>")
+            children = defElm.find_all(recursive=False)
+            for j, child in enumerate(children):
+                print(f"      [{j}] <{child.name}> {dict(child.attrs)}\n")
+
 
 if __name__ == '__main__':
     svgFile = 'little_tower.svg'
