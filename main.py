@@ -166,7 +166,57 @@ def svgHierarchy(svgFile, maxDepth=3):
         elmStructure(svgRoot)
 
 
+def extractTxtElm(svgFile):
+    """
+    Extract detailed information about all text elements.
+
+    Args:
+        svgFile (str): Path to the SVG file
+    """
+    with open(svgFile, 'r', encoding='utf-8') as f:
+        content = f.read()
+
+    soup = BeautifulSoup(content, 'xml')
+
+    print("\n" + "="*80)
+    print("📝 DETAILED TEXT ANALYSIS")
+    print("="*80)
+
+    txtElms = soup.find_all(['text', 'tspan'])
+
+    for i, elm in enumerate(txtElms):
+        txtContent = elm.get_text(strip=True)
+        if txtContent:
+            print(f"\n[{i}] TEXT ELEMENT:")
+            print(f"    Tag: <{elm.name}>")
+            print(f"    Content: '{txtContent}'")
+            print(f"    Length: {len(txtContent)} characters")
+
+            # Position
+            x = elm.get('x', 'N/A')
+            y = elm.get('y', 'N/A')
+            print(f"    Position: x={x}, y={y}")
+
+            # Styling
+            styleAttrs = {}
+            for attr in ['font-family', 'font-size', 'font-weight', 'fill', 'stroke', 'style']:
+                if elm.get(attr):
+                    styleAttrs[attr] = elm.get(attr)
+
+            if styleAttrs:
+                print(f"    Styling: {styleAttrs}")
+
+            # Parent info
+            parent = elm.parent
+            if parent and parent.name != 'svg':
+                print(
+                    f"    Parent: <{parent.name}> {dict(parent.attrs) if parent.attrs else ''}")
+
+            print("-" * 50)
+
+
 if __name__ == '__main__':
     svgFile = 'little_tower.svg'
     analyzeSVG(svgFile)
     svgHierarchy(svgFile)
+    extractTxtElm(svgFile)
